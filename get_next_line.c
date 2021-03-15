@@ -37,23 +37,23 @@ static int	get_line(char **s, char **line)
 	return (1);
 }
 
-static int	checkline(char **s, char **line, int fd_read, int fd)
+static int	checkline(char **s, char **line, int fd_read)
 {
 	if (fd_read < 0)
 		return (-1);
-	else if ((fd_read == 0 && s[fd] == NULL) || s[fd][0] == '\0')
+	else if ((fd_read == 0 && *s == NULL) || *s[0] == '\0')
 	{
 		*line = ft_strdup("");
 		return (0);
 	}
 	else
-		return (get_line(&s[fd], line));
+		return (get_line(s, line));
 }
 
 int			get_next_line(int fd, char **line)
 {
 	int			fd_read;
-	static char	*s[4096];
+	static char *s;
 	char		buff[BUFFER_SIZE + 1];
 	char		*tmp;
 
@@ -62,16 +62,16 @@ int			get_next_line(int fd, char **line)
 	while ((fd_read = read(fd, buff, BUFFER_SIZE)) > 0)
 	{
 		buff[fd_read] = '\0';
-		if (s[fd] == NULL)
-			s[fd] = ft_strdup(buff);
+		if (s == NULL)
+			s = ft_strdup(buff);
 		else
 		{
-			tmp = ft_strjoin(s[fd], buff);
-			free(s[fd]);
-			s[fd] = tmp;
+			tmp = ft_strjoin(s, buff);
+			free(s);
+			s = tmp;
 		}
-		if (ft_strchr(s[fd], '\n'))
+		if (ft_strchr(s, '\n'))
 			break ;
 	}
-	return (checkline(s, line, fd_read, fd));
+	return (checkline(&s, line, fd_read));
 }
